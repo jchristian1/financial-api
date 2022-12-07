@@ -9,7 +9,7 @@ from django.utils.translation import gettext as _
 
 from rest_framework import serializers
 
-class UserSerializers(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     """Serializer for the users object."""
 
     class Meta:
@@ -22,12 +22,12 @@ class UserSerializers(serializers.ModelSerializer):
         return get_user_model().objects.create_user(**validated_data)
 
 
-class AuthTokenSerializer(serializers.serializer):
+class AuthTokenSerializer(serializers.Serializer):
     """Serializer for the user auth token."""
     email = serializers.EmailField()
-    password = serializers. Charfield(
+    password = serializers.CharField(
         style={'input_type': 'password'},
-        trim_whitespace=False
+        trim_whitespace=False,
     )
 
     def validate(self, attrs):
@@ -43,5 +43,5 @@ class AuthTokenSerializer(serializers.serializer):
             msg = _('Unable to authenticate with provided credentials.')
             raise serializers.ValidationError(msg, code='authorization')
 
-        attrs[user] = user
+        attrs['user'] = user
         return attrs
