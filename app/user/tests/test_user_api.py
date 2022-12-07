@@ -107,7 +107,6 @@ class PublicUserApiTests(TestCase):
         self.assertNotIn('token', res.data)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
-
     def test_create_token_blank_password(self):
         """Test posting a blank password returns an error."""
         payload = {'email': 'test@example.com', 'password': ''}
@@ -132,12 +131,12 @@ class PrivateUserApiTests(TestCase):
             password='testpass123',
             name='Test Name',
         )
-        self.client = APIClient
+        self.client = APIClient()
         self.client.force_authenticate(user=self.user)
 
     def test_retrieve_profile_success(self):
         """Test retrieving profile for logged in user."""
-        res = self.client(ME_URL)
+        res = self.client.get(ME_URL)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, {
@@ -147,7 +146,7 @@ class PrivateUserApiTests(TestCase):
 
     def test_post_me_not_allowed(self):
         """Test POST is not allowed for the endpoint."""
-        res = self.client.post(ME_URL, {}),
+        res = self.client.post(ME_URL, {})
 
         self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
