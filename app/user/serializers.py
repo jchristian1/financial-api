@@ -9,6 +9,7 @@ from django.utils.translation import gettext as _
 
 from rest_framework import serializers
 
+
 class UserSerializer(serializers.ModelSerializer):
     """Serializer for the users object."""
 
@@ -23,7 +24,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         """Update and return user."""
-        password = validated_data.pop('password',None)
+        password = validated_data.pop('password', None)
         user = super().update(instance, validated_data)
 
         if password:

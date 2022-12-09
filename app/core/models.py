@@ -1,12 +1,15 @@
 """
 Database models.
 """
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
     PermissionsMixin,
 )
+
+
 class UserManager(BaseUserManager):
     """Manager for users"""
 
@@ -40,3 +43,16 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
+
+class Company(models.Model):
+    """Recipe object."""
+    name_company = models.CharField(max_length=255)
+    symbol = models.CharField(max_length=10)
+    cik = models.CharField(max_length=20, blank=True)
+    sector = models.CharField(max_length=20, blank=True)
+    industry_category = models.CharField(max_length=20, blank=True)
+    company_url = models.TextField(blank=True)
+    description = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.name_company
