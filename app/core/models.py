@@ -1,7 +1,6 @@
 """
 Database models.
 """
-from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import (
     AbstractBaseUser,
@@ -44,8 +43,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = 'email'
 
+
 class Company(models.Model):
-    """Recipe object."""
+    """Company object."""
     name_company = models.CharField(max_length=255)
     symbol = models.CharField(max_length=10)
     cik = models.CharField(max_length=20, blank=True)

@@ -17,6 +17,7 @@ class CompanySerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id']
 
+
 class CompanyDetailSerializer(CompanySerializer):
     """Serializer for recipes."""
 
