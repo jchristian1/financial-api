@@ -12,8 +12,8 @@ from financials import views
 
 
 router = DefaultRouter()
-router.register('indicators', views.FinancialIndicatorViewSet)
 router.register('companies', views.CompanyViewSet)
+router.register('indicators', views.IndicatorViewSet)
 
 app_name = 'financials'
 

@@ -1,5 +1,5 @@
 """
-Tests for financials APIs.
+Tests for Company APIs.
 """
 from django.contrib.auth import get_user_model
 from django.test import TestCase

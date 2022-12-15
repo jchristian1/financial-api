@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 from core.models import (
     Company,
-    FinancialIndicator,
+    Indicator,
 )
 
 
@@ -28,20 +28,9 @@ class CompanyDetailSerializer(CompanySerializer):
         fields = CompanySerializer.Meta.fields + ['description']
 
 
-class FinancialIndicatorSerializer(serializers.ModelSerializer):
-    """Serializer for financial indicator."""
+class IndicatorSerializer(serializers.ModelSerializer):
+    """Serializer for financial indicators."""
 
     class Meta:
-        model = FinancialIndicator
-        fields = ['indicator_name', 'tag']
-        read_only_fields = ['id']
-
-
-class FinancialIndicatorDetailSerializer(FinancialIndicatorSerializer):
-    """Serializer for financial indicator details."""
-
-    class Meta:
-        fields = FinancialIndicatorSerializer.Meta.fields + ['description']
-
-
-
+        model = Indicator
+        fields = ['id', 'description', 'indicator_name', 'tag']

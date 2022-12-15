@@ -57,7 +57,7 @@ class Company(models.Model):
     def __str__(self):
         return self.name_company
 
-class FinancialIndicator(models.Model):
+class Indicator(models.Model):
     """Financial indicators object."""
     description = models.TextField(blank=True)
     indicator_name = models.CharField(max_length=255)
