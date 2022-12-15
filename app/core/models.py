@@ -47,7 +47,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 class Company(models.Model):
     """Company object."""
     name_company = models.CharField(max_length=255)
-    symbol = models.CharField(max_length=10)
+    symbol = models.CharField(max_length=10, unique=True)
     cik = models.CharField(max_length=20, blank=True)
     sector = models.CharField(max_length=20, blank=True)
     industry_category = models.CharField(max_length=20, blank=True)
@@ -56,3 +56,12 @@ class Company(models.Model):
 
     def __str__(self):
         return self.name_company
+
+class FinancialIndicator(models.Model):
+    """Financial indicators object."""
+    description = models.TextField(blank=True)
+    indicator_name = models.CharField(max_length=255)
+    tag = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.indicator_name

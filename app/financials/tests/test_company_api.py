@@ -16,12 +16,12 @@ from financials.serializers import (
 )
 
 
-COMPANIES_URL = reverse('company:company-list')
+COMPANIES_URL = reverse('financials:company-list')
 
 
 def detail_url(company_id):
     """Create and return company detail url."""
-    return reverse('company:company-detail', args=[company_id])
+    return reverse('financials:company-detail', args=[company_id])
 
 
 def create_company(**params):
@@ -72,8 +72,13 @@ def create_company(**params):
     return company
 
 
-class PublicRecipeApiTests(TestCase):
-    """Test authenticated API requests."""
+def create_user(**params):
+    """Create and return a new user."""
+    return get_user_model().objects.create_user(**params)
+
+
+class PublicCompanyApiTests(TestCase):
+    """Test unauthenticated API requests."""
 
     def setUp(self):
         self.client = APIClient()
@@ -85,22 +90,18 @@ class PublicRecipeApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
-class PrivateRecipeApiTests(TestCase):
+class PrivateCompanyApiTests(TestCase):
     """Test authenticated API requests."""
 
     def setUp(self):
         self.client = APIClient()
-        self.user = get_user_model().objects.create_user(
-            'user@example.com',
-            'testpass123',
-        )
+        self.user = create_user(email='user@example.com', password='testpass123')
         self.client.force_authenticate(self.user)
 
     def test_retrieve_companies(self):
         """Test retrieving a list of Companies"""
         create_company()
-        create_company()
-        create_company()
+        create_company(name_company='Microsoft', symbol='MSFT')
 
         res = self.client.get(COMPANIES_URL)
 
@@ -167,3 +168,38 @@ class PrivateRecipeApiTests(TestCase):
         company = Company.objects.get(id=res.data['id'])
         for k,  v in payload.items():
             self.assertEqual(getattr(company, k), v)
+
+
+    def test_partial_update_company(self):
+        """Test partial update of a company."""
+        company = create_company()
+
+        payload = {'company_url': 'https://www.apple.com/win',}
+        url = detail_url(company.id)
+        res = self.client.patch(url, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        company.refresh_from_db()
+        self.assertEqual(company.company_url, payload['company_url'])
+
+    def test_full_update_company(self):
+        """Test full update of company."""
+        company = create_company()
+
+        payload = {
+            'name_company': 'Aple',
+            'symbol': 'APL',
+            'cik': '000320193',
+            'sector': 'Techno',
+            'industry_category': 'Consumer',
+            'company_url': 'https://www.apple.co/',
+            'description': 'The most valuable firm in the world.',
+        }
+        url = detail_url(company.id)
+        res = self.client.put(url, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        company.refresh_from_db()
+        for k, v in payload.items():
+            self.assertEqual(getattr(company, k), v)
+

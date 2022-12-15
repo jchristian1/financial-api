@@ -1,5 +1,5 @@
 """
-Url mappings for Financial APIs.
+Url mappings for Financials APIs.
 """
 from django.urls import (
     path,
@@ -12,9 +12,10 @@ from financials import views
 
 
 router = DefaultRouter()
+router.register('indicators', views.FinancialIndicatorViewSet)
 router.register('companies', views.CompanyViewSet)
 
-app_name = 'company'
+app_name = 'financials'
 
 urlpatterns = [
     path('', include(router.urls)),

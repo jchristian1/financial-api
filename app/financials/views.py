@@ -6,7 +6,11 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
 
-from core.models import Company
+from core.models import (
+    Company,
+    FinancialIndicator,
+)
+
 from financials import serializers
 
 
@@ -27,3 +31,8 @@ class CompanyViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """Create a new Company. """
         serializer.save()
+
+class FinancialIndicatorViewSet(viewsets.ModelViewSet):
+    """View for manage Financial Indicators APIs."""
+    serializer_class = serializers.FinancialIndicatorSerializer
+    queryset = FinancialIndicator.objects.all()
