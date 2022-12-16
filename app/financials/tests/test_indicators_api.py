@@ -15,6 +15,10 @@ from financials.serializers import IndicatorSerializer
 
 INDICATOR_URL = reverse('financials:indicator-list')
 
+def detail_url(indicator_url):
+    """Create and return a financial indicator detail URL."""
+    return reverse('financials:indicator-detail', args=[indicator_url])
+
 
 def create_indicator(**params):
     """Create and return a sample of a financial indicator."""
@@ -64,4 +68,27 @@ class PrivateIndicatorApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
 
+    def test_get_indicator_detail(self):
+        """Test get indicator detail."""
+        indicator = create_indicator()
 
+        url = detail_url(indicator.id)
+        res = self.client.get(url)
+
+        serializer = IndicatorSerializer(indicator)
+        self.assertEqual(res.data, serializer.data)
+
+
+    def test_create_indicator(self):
+        """Test creating a financial indicator."""
+        payload = {
+            'description': 'Costs',
+            'indicator_name': 'Costs',
+            'tag': 'Costs',
+        }
+        res = self.client.post(INDICATOR_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        indicator = Indicator.objects.get(id=res.data['id'])
+        for k, v in payload.items():
+            self.assertEqual(getattr(indicator, k), v)

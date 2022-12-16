@@ -34,3 +34,9 @@ class IndicatorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Indicator
         fields = ['id', 'description', 'indicator_name', 'tag']
+
+class IndicatorDetailSerializer(IndicatorSerializer):
+    """Serializer for financial inficator detail view."""
+
+    class Meta:
+        fields = IndicatorSerializer.Meta.fields + ['description']
