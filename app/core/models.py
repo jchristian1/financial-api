@@ -68,7 +68,7 @@ class Indicator(models.Model):
 
 class Statement(models.Model):
     """Financial statement type object."""
-    statement_name = models.TextField(blank=True)
+    statement_name = models.CharField(max_length=150)
 
     def __str__(self):
         return self.statement_name
