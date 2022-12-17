@@ -212,4 +212,3 @@ class PrivateCompanyApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(Company.objects.filter(id=company.id).exists())
-

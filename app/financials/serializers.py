@@ -37,11 +37,13 @@ class IndicatorSerializer(serializers.ModelSerializer):
         fields = ['id', 'description', 'indicator_name', 'tag']
         read_only_fields = ['id']
 
+
 class IndicatorDetailSerializer(IndicatorSerializer):
     """Serializer for financial inficator detail view."""
 
     class Meta:
         fields = IndicatorSerializer.Meta.fields + ['description']
+
 
 class StatementSerializer(serializers.ModelSerializer):
     """Serializer for the Financial Statement Type."""

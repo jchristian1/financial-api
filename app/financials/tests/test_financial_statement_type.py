@@ -16,6 +16,11 @@ from financials.serializers import StatementSerializer
 STATEMENT_URL = reverse('financials:statement-list')
 
 
+def detail_url(statement_id):
+    """Create and return statement detail url."""
+    return reverse('financials:statement-detail', args=[statement_id])
+
+
 def create_statement(**params):
     """Create and return a new statement."""
     defaults = {
@@ -63,4 +68,64 @@ class PrivateStatementApiTests(TestCase):
         serializer = StatementSerializer(statement, many=True)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
+
+    def test_get_recipe_detail(self):
+        """Test get financial statement detail."""
+        statement = create_statement()
+
+        url = detail_url(statement.id)
+        res = self.client.get(url)
+
+        serializer = StatementSerializer(statement)
+        self.assertEqual(res.data, serializer.data)
+
+    def test_create_statement(self):
+        """Test creating a financial statement type."""
+        payload = {
+            'statement_name': 'Balance Sheet Statement'
+        }
+        res = self.client.post(STATEMENT_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        statement = Statement.objects.get(id=res.data['id'])
+        for k,v in payload.items():
+            self.assertEqual(getattr(statement, k), v)
+
+    def test_partial_update_statement(self):
+        """Test partial update of a Financial Statement Type."""
+        statement = create_statement()
+
+        payload = {'statement_name': 'Balance Sheet Statement',}
+        url = detail_url(statement.id)
+        res = self.client.patch(url, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        statement.refresh_from_db()
+        self.assertEqual(statement.statement_name, payload['statement_name'])
+
+    def test_full_update_statement(self):
+        """Test full update of financial statement type."""
+        statement = create_statement()
+        payload = {'statement_name': 'Balance Sheet Statement'}
+        url = detail_url(statement.id)
+        res = self.client.put(url, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        statement.refresh_from_db()
+        for k, v in payload.items():
+            self.assertEqual(getattr(statement, k), v)
+
+    def test_delete_statement(self):
+        """Test deleting a financial statement type."""
+        statement = create_statement()
+
+        url = detail_url(statement.id)
+        res = self.client.delete(url)
+
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+
+
+
+
+
 

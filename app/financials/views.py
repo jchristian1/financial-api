@@ -58,3 +58,14 @@ class StatementViewSet(viewsets.ModelViewSet):
     queryset = Statement.objects.all()
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
+
+    def get_serializer_class(self):
+        """Return the serializer class for the request."""
+        if self.action == 'list':
+            return serializers.StatementSerializer
+
+        return self.serializer_class
+
+    def perform_create(self, serializer):
+        """Create a new Financial statement type. """
+        serializer.save()
