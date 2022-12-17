@@ -144,3 +144,11 @@ class ModelTests(TestCase):
         )
 
         self.assertEqual(str(financial_indicator), financial_indicator.indicator_name)
+
+    def test_create_financial_statement_type(self):
+        """Test create financial indicator type."""
+        financial_statement = models.Statement.objects.create(
+            statement_name = 'Proffit and Loss Statement'
+        )
+
+        self.assertEqual(str(financial_statement), financial_statement.statement_name)

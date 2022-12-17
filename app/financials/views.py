@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from core.models import (
     Company,
     Indicator,
+    Statement
 )
 
 from financials import serializers
@@ -49,3 +50,11 @@ class IndicatorViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """Create a new Financial indicator. """
         serializer.save()
+
+
+class StatementViewSet(viewsets.ModelViewSet):
+    """Views for manage the statement APIs."""
+    serializer_class = serializers.StatementSerializer
+    queryset = Statement.objects.all()
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]

@@ -99,7 +99,7 @@ class PrivateCompanyApiTests(TestCase):
         self.client.force_authenticate(self.user)
 
     def test_retrieve_companies(self):
-        """Test retrieving a list of Companies"""
+        """Test retrieving a list of Companies."""
         create_company()
         create_company(name_company='Microsoft', symbol='MSFT')
 
@@ -202,4 +202,14 @@ class PrivateCompanyApiTests(TestCase):
         company.refresh_from_db()
         for k, v in payload.items():
             self.assertEqual(getattr(company, k), v)
+
+    def test_delete_company(self):
+        """Test deleting a company successful."""
+        company = create_company()
+
+        url = detail_url(company.id)
+        res = self.client.delete(url)
+
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Company.objects.filter(id=company.id).exists())
 

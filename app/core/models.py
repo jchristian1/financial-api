@@ -65,3 +65,10 @@ class Indicator(models.Model):
 
     def __str__(self):
         return self.indicator_name
+
+class Statement(models.Model):
+    """Financial statement type object."""
+    statement_name = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.statement_name
