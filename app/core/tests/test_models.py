@@ -46,6 +46,8 @@ from django.contrib.auth import get_user_model
 
 from core import models
 
+import hashlib
+
 
 class ModelTests(TestCase):
     """Test models."""
@@ -152,3 +154,70 @@ class ModelTests(TestCase):
         )
 
         self.assertEqual(str(financial_statement), financial_statement.statement_name)
+
+    def test_create_financial_statement_meta_data(self):
+        """Test create financial statement meta data."""
+        company = models.Company.objects.create(
+            name_company='APPLE',
+            symbol='AAPL',
+            cik='0000320193',
+            sector='Technology',
+            industry_category='Consumer Electronics',
+            company_url='https://www.apple.com',
+            description='Apple Inc. designs, manufactures,' +
+                'and markets smartphones, personal' +
+                'computers, tablets, wearables, and' +
+                'accessories worldwide. It also sells' +
+                'various related services. In addition,' +
+                'the company offers iPhone, a line of' +
+                'smartphones; Mac, a line of personal computers;' +
+                'iPad, a line of multi-purpose tablets; and' +
+                'wearables, home, and accessories comprising AirPods,' +
+                'Apple TV, Apple Watch, Beats products, and HomePod.' +
+                'Further, it provides AppleCare support and cloud services' +
+                'store services; and operates various platforms,' +
+                'including the App Store that allow customers to' +
+                'discover and download applications and digital content,' +
+                'such as books, music, video, games, and podcasts.' +
+                'Additionally, the company offers various services,' +
+                'such as Apple Arcade, a game subscription service;' +
+                'Apple Fitness+, a personalized fitness service;' +
+                'Apple Music, which offers users a curated listening' +
+                'experience with on-demand radio stations; Apple News+,' +
+                'a subscription news and magazine service; Apple TV+,' +
+                'which offers exclusive original content; Apple Card,' +
+                'a co-branded credit card; and Apple Pay, a cashless' +
+                'payment service, as well as licenses its intellectual' +
+                'property. The company serves consumers, and small and' +
+                'mid-sized businesses; and the education, enterprise,' +
+                'and government markets. It distributes third-party' +
+                'applications for its products through the App Store.' +
+                'The company also sells its products through its retail' +
+                'cellular network carriers, wholesalers, retailers, and' +
+                'resellers. Apple Inc. was incorporated in 1977 and is' +
+                'headquartered in Cupertino, California.',
+        )
+        statement_type = models.Statement.objects.create(
+            statement_name = 'Balance Sheet Statement Standarized'
+        )
+
+        date = '2022-09-24'
+        ticker = company.symbol
+        period = 'FY'
+        statement_name = statement_type.statement_name
+        data = date + ticker + period + statement_name
+        statement_meta_data = models.StatementMetaData.objects.create(
+            unique_hash = hashlib.sha256(data.encode()).hexdigest(),
+            id_company = company,
+            id_statement_type = statement_type,
+            fiscal_year = '2022',
+            fiscal_period = 'FY',
+            filling_date = '2022-10-28',
+            start_date = '2022-09-24',
+            end_date = '2022-10-27 18:01:14',
+            url = 'https://www.sec.gov/Archives/edgar/data/320193/000032019322000108/0000320193-22-000108-index.htm',
+            urlfinal = 'https://www.sec.gov/Archives/edgar/data/320193/000032019322000108/aapl-20220924.htm',
+            unit = 'USD',
+        )
+
+        self.assertEqual(str(statement_meta_data), statement_meta_data.url)

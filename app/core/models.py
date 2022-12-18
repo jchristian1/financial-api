@@ -72,3 +72,22 @@ class Statement(models.Model):
 
     def __str__(self):
         return self.statement_name
+
+class StatementMetaData(models.Model):
+    unique_hash = models.CharField(max_length=250, unique=True)
+    id_company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    id_statement_type = models.ForeignKey(Statement, on_delete=models.CASCADE, default=0)
+    fiscal_year = models.IntegerField()
+    fiscal_period = models.CharField(max_length=50)
+    filling_date = models.DateField()
+    start_date = models.DateField()
+    end_date = models.DateTimeField()
+    url = models.CharField(max_length=150, blank=True)
+    urlfinal = models.CharField(max_length=150, blank=True)
+    unit = models.CharField(max_length=10)
+
+    def __str__(self):
+        return self.url
+
+
+
