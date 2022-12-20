@@ -214,10 +214,10 @@ class ModelTests(TestCase):
             fiscal_period = 'FY',
             filling_date = '2022-10-28',
             start_date = '2022-09-24',
-            end_date = '2022-10-27 18:01:14',
+            end_date = '2022-10-27',
             url = 'https://www.sec.gov/Archives/edgar/data/320193/000032019322000108/0000320193-22-000108-index.htm',
             urlfinal = 'https://www.sec.gov/Archives/edgar/data/320193/000032019322000108/aapl-20220924.htm',
             unit = 'USD',
         )
 
-        self.assertEqual(str(statement_meta_data), statement_meta_data.url)
+        self.assertEqual(str(statement_meta_data), statement_meta_data.unique_hash)

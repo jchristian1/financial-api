@@ -81,13 +81,13 @@ class StatementMetaData(models.Model):
     fiscal_period = models.CharField(max_length=50)
     filling_date = models.DateField()
     start_date = models.DateField()
-    end_date = models.DateTimeField()
+    end_date = models.DateField()
     url = models.CharField(max_length=150, blank=True)
     urlfinal = models.CharField(max_length=150, blank=True)
     unit = models.CharField(max_length=10)
 
     def __str__(self):
-        return self.url
+        return self.unique_hash
 
 
 

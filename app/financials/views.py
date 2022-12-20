@@ -9,7 +9,8 @@ from rest_framework.permissions import IsAuthenticated
 from core.models import (
     Company,
     Indicator,
-    Statement
+    Statement,
+    StatementMetaData
 )
 
 from financials import serializers
@@ -69,3 +70,10 @@ class StatementViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """Create a new Financial statement type. """
         serializer.save()
+
+class StatementMetaDataViewSet(viewsets.ModelViewSet):
+    """Views for manage the  financial statement meta data APIs."""
+    serializer_class = serializers.StatementMetaDataSerializer
+    queryset = StatementMetaData.objects.all()
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]

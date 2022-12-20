@@ -6,7 +6,8 @@ from rest_framework import serializers
 from core.models import (
     Company,
     Indicator,
-    Statement
+    Statement,
+    StatementMetaData
 )
 
 
@@ -52,3 +53,13 @@ class StatementSerializer(serializers.ModelSerializer):
         model = Statement
         fields = ['id', 'statement_name']
         read_only_fields = ['id']
+
+class StatementMetaDataSerializer(serializers.ModelSerializer):
+    """Serializer for the Financial Statement Meta Data."""
+
+    class Meta:
+        model = StatementMetaData
+        fields = ['id', 'unique_hash', 'id_company', 'id_statement_type',
+                'fiscal_year', 'fiscal_period', 'filling_date', 'start_date',
+                'end_date', 'url', 'urlfinal', 'unit',
+        ]
