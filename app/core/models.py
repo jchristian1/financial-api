@@ -48,9 +48,9 @@ class Company(models.Model):
     """Company object."""
     name_company = models.CharField(max_length=255)
     symbol = models.CharField(max_length=10, unique=True)
-    cik = models.CharField(max_length=20, blank=True)
-    sector = models.CharField(max_length=20, blank=True)
-    industry_category = models.CharField(max_length=20, blank=True)
+    cik = models.CharField(max_length=150, blank=True)
+    sector = models.CharField(max_length=150, blank=True)
+    industry_category = models.CharField(max_length=150, blank=True)
     company_url = models.TextField(blank=True)
     description = models.TextField(blank=True)
 
@@ -83,7 +83,7 @@ class StatementMetaData(models.Model):
         Statement,
         on_delete=models.CASCADE, default=0
     )
-    fiscal_year = models.IntegerField()
+    fiscal_year = models.CharField(max_length=50)
     fiscal_period = models.CharField(max_length=50)
     filling_date = models.DateField()
     start_date = models.DateField()
