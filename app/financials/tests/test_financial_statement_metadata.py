@@ -235,11 +235,39 @@ class PrivateStatementApiTests(TestCase):
             'urlfinal': 'https://www.sec.gov/Archives/edgar/data/320193/000032019322000108/aapl-20220924.htm',
             'unit': 'USD',
         }
-        print(payload['id_company'])
         res = self.client.post(STATEMENT_META_DATA_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         statements_meta_data = StatementMetaData.objects.get(id=res.data['id'])
         self.assertEqual(statements_meta_data.unique_hash, payload['unique_hash'])
-        """for k, v in payload.items():
-            self.assertEqual(getattr(statements_meta_data, k), v)"""
+
+    def test_partial_update(self):
+        """Test partial update of a financial statement metadata"""
+        statement_meta_data = create_financial_statement_meta_data(
+            name_company='TESLA',
+            symbol='TSLA',
+        )
+        payload = {
+            'filling_date': '2022-11-28',
+            'start_date': '2022-10-24',
+        }
+        url = detail_url(statement_meta_data.id)
+        res = self.client.patch(url, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        statement_meta_data.refresh_from_db()
+        self.assertEqual(str(statement_meta_data.filling_date), payload['filling_date'])
+        self.assertEqual(str(statement_meta_data.start_date), payload['start_date'])
+
+    def test_delete_statement_meta_data(self):
+        """Test for deleting financial statements metadata."""
+        statement_meta_data = create_financial_statement_meta_data(
+            name_company='NVIDIA',
+            symbol='NVDA',
+        )
+
+        url = detail_url(statement_meta_data.id)
+        res = self.client.delete(url)
+
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(StatementMetaData.objects.filter(id=statement_meta_data.id).exists())

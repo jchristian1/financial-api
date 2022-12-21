@@ -33,7 +33,8 @@ def create_company(**params):
         'sector': 'Technology',
         'industry_category': 'Consumer Electronics',
         'company_url': 'https://www.apple.com/',
-        'description': 'Apple Inc. designs, manufactures,' +
+        'description':
+                'Apple Inc. designs, manufactures,' +
                 'and markets smartphones, personal' +
                 'computers, tablets, wearables, and' +
                 'accessories worldwide. It also sells' +
@@ -95,7 +96,10 @@ class PrivateCompanyApiTests(TestCase):
 
     def setUp(self):
         self.client = APIClient()
-        self.user = create_user(email='user@example.com', password='testpass123')
+        self.user = create_user(
+            email='user@example.com',
+            password='testpass123',
+        )
         self.client.force_authenticate(self.user)
 
     def test_retrieve_companies(self):
@@ -129,7 +133,8 @@ class PrivateCompanyApiTests(TestCase):
             'sector': 'Technology',
             'industry_category': 'Consumer Electronics',
             'company_url': 'https://www.apple.com/',
-            'description': 'Apple Inc. designs, manufactures,' +
+            'description':
+                'Apple Inc. designs, manufactures,' +
                 'and markets smartphones, personal' +
                 'computers, tablets, wearables, and' +
                 'accessories worldwide. It also sells' +
@@ -169,12 +174,11 @@ class PrivateCompanyApiTests(TestCase):
         for k,  v in payload.items():
             self.assertEqual(getattr(company, k), v)
 
-
     def test_partial_update_company(self):
         """Test partial update of a company."""
         company = create_company()
 
-        payload = {'company_url': 'https://www.apple.com/win',}
+        payload = {'company_url': 'https://www.apple.com/win', }
         url = detail_url(company.id)
         res = self.client.patch(url, payload)
 

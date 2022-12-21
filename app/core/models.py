@@ -57,6 +57,7 @@ class Company(models.Model):
     def __str__(self):
         return self.name_company
 
+
 class Indicator(models.Model):
     """Financial indicators object."""
     description = models.TextField(blank=True)
@@ -66,6 +67,7 @@ class Indicator(models.Model):
     def __str__(self):
         return self.indicator_name
 
+
 class Statement(models.Model):
     """Financial statement type object."""
     statement_name = models.CharField(max_length=150)
@@ -73,10 +75,14 @@ class Statement(models.Model):
     def __str__(self):
         return self.statement_name
 
+
 class StatementMetaData(models.Model):
     unique_hash = models.CharField(max_length=250, unique=True)
     id_company = models.ForeignKey(Company, on_delete=models.CASCADE)
-    id_statement_type = models.ForeignKey(Statement, on_delete=models.CASCADE, default=0)
+    id_statement_type = models.ForeignKey(
+        Statement,
+        on_delete=models.CASCADE, default=0
+    )
     fiscal_year = models.IntegerField()
     fiscal_period = models.CharField(max_length=50)
     filling_date = models.DateField()
@@ -88,6 +94,3 @@ class StatementMetaData(models.Model):
 
     def __str__(self):
         return self.unique_hash
-
-
-
