@@ -77,6 +77,7 @@ class Statement(models.Model):
 
 
 class StatementMetaData(models.Model):
+    """Statements meta data objects."""
     unique_hash = models.CharField(max_length=250, unique=True)
     id_company = models.ForeignKey(Company, on_delete=models.CASCADE)
     id_statement_type = models.ForeignKey(
@@ -93,4 +94,24 @@ class StatementMetaData(models.Model):
     unit = models.CharField(max_length=10)
 
     def __str__(self):
-        return self.unique_hash
+        company_name = self.id_company.name_company
+        statement_type = self.id_statement_type.statement_name
+        start_date = self.start_date
+        fiscal_period = self.fiscal_period
+        admin_string = f'{company_name} - {statement_type} - {start_date} - {fiscal_period}'
+        return admin_string
+
+class FinancialsValues(models.Model):
+    """Financial values object."""
+    id_financial_statement_meta_data = models.ForeignKey(
+        StatementMetaData,
+        on_delete=models.CASCADE
+    )
+    id_Financial_Indicator = models.ForeignKey(
+        Indicator,
+        on_delete=models.CASCADE
+    )
+    ammount = models.FloatField()
+
+    def __str__(self):
+        return f'{self.id_financial_statement_meta_data} - {self.id_Financial_Indicator.indicator_name} - {self.ammount}'

@@ -7,7 +7,7 @@ from core.models import (
     Company,
     Indicator,
     Statement,
-    StatementMetaData
+    StatementMetaData,
 )
 
 
