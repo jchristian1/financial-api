@@ -101,7 +101,7 @@ class StatementMetaData(models.Model):
         admin_string = f'{company_name} - {statement_type} - {start_date} - {fiscal_period}'
         return admin_string
 
-class FinancialsValues(models.Model):
+class FinancialValue(models.Model):
     """Financial values object."""
     id_financial_statement_meta_data = models.ForeignKey(
         StatementMetaData,
