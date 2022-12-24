@@ -10,10 +10,13 @@ from core.models import (
     Company,
     Indicator,
     Statement,
-    StatementMetaData
+    StatementMetaData,
+    FinancialValue,
 )
 
 from financials import serializers
+
+from django.db import IntegrityError
 
 
 class CompanyViewSet(viewsets.ModelViewSet):
@@ -31,8 +34,9 @@ class CompanyViewSet(viewsets.ModelViewSet):
         return self.serializer_class
 
     def perform_create(self, serializer):
-        """Create a new Company. """
+        """Create a new Company."""
         serializer.save()
+
 
 class IndicatorViewSet(viewsets.ModelViewSet):
     """View for manage financial indicators APIs."""
@@ -71,9 +75,18 @@ class StatementViewSet(viewsets.ModelViewSet):
         """Create a new Financial statement type. """
         serializer.save()
 
+
 class StatementMetaDataViewSet(viewsets.ModelViewSet):
     """Views for manage the  financial statement meta data APIs."""
     serializer_class = serializers.StatementMetaDataSerializer
     queryset = StatementMetaData.objects.all()
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+
+class FinancialValuesViewSet(viewsets.ModelViewSet):
+    """Views for manage the  financial statement meta data APIs."""
+    serializer_class = serializers.FinancialValueSerializer
+    queryset = FinancialValue.objects.all()
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]

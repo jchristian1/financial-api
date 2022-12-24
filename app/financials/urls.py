@@ -15,6 +15,7 @@ router.register('companies', views.CompanyViewSet)
 router.register('indicators', views.IndicatorViewSet)
 router.register('statements', views.StatementViewSet)
 router.register('statementmetadatas', views.StatementMetaDataViewSet)
+router.register('financialvalues', views.FinancialValuesViewSet)
 
 app_name = 'financials'
 

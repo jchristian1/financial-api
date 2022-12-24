@@ -105,7 +105,11 @@ class PrivateCompanyApiTests(TestCase):
     def test_retrieve_companies(self):
         """Test retrieving a list of Companies."""
         create_company()
-        create_company(name_company='Microsoft', symbol='MSFT')
+        create_company()
+        create_company(
+            name_company='Tesla',
+            symbol='TSLA',
+        )
 
         res = self.client.get(COMPANIES_URL)
 

@@ -8,7 +8,10 @@ from core.models import (
     Indicator,
     Statement,
     StatementMetaData,
+    FinancialValue
 )
+
+from django.db import IntegrityError
 
 
 class CompanySerializer(serializers.ModelSerializer):
@@ -22,6 +25,13 @@ class CompanySerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id']
 
+    def create(self, validated_data):
+        try:
+            instance, created = Company.objects.get_or_create(**validated_data)
+            if created:
+                return instance
+        except IntegrityError:
+            pass
 
 class CompanyDetailSerializer(CompanySerializer):
     """Serializer for Company details."""
@@ -54,6 +64,7 @@ class StatementSerializer(serializers.ModelSerializer):
         fields = ['id', 'statement_name']
         read_only_fields = ['id']
 
+
 class StatementMetaDataSerializer(serializers.ModelSerializer):
     """Serializer for the Financial Statement Meta Data."""
 
@@ -63,3 +74,18 @@ class StatementMetaDataSerializer(serializers.ModelSerializer):
                 'fiscal_year', 'fiscal_period', 'filling_date', 'start_date',
                 'end_date', 'url', 'urlfinal', 'unit',
         ]
+        read_only_fields = ['id']
+
+
+class FinancialValueSerializer(serializers.ModelSerializer):
+    """Serializer for the Financial Statement Meta Data."""
+
+    class Meta:
+        model = FinancialValue
+        fields = [
+            'id',
+            'id_financial_statement_meta_data',
+            'id_Financial_Indicator',
+            'ammount',
+        ]
+        read_only_fields = ['id']
