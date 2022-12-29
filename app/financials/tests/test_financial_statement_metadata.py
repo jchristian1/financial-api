@@ -187,6 +187,7 @@ class PrivateStatementApiTests(TestCase):
     def test_retrieve_statements_meta_data(self):
         """Test for retrieving statements meta data."""
         create_financial_statement_meta_data()
+        create_financial_statement_meta_data()
         create_financial_statement_meta_data(
             name_company='MICROSOFT',
             symbol='MSFT',
