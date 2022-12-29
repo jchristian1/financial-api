@@ -35,7 +35,12 @@ class CompanyViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         """Create a new Company."""
-        serializer.save()
+        try:
+            company = serializer.save()
+        except IntegrityError:
+            pass
+        else:
+            return company
 
 
 class IndicatorViewSet(viewsets.ModelViewSet):

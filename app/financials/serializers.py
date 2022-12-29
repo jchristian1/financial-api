@@ -25,13 +25,6 @@ class CompanySerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id']
 
-    def create(self, validated_data):
-        try:
-            instance, created = Company.objects.get_or_create(**validated_data)
-            if created:
-                return instance
-        except IntegrityError:
-            pass
 
 class CompanyDetailSerializer(CompanySerializer):
     """Serializer for Company details."""

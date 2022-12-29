@@ -68,9 +68,7 @@ def create_company(**params):
                 'headquartered in Cupertino, California.',
     }
     defaults.update(params)
-
-    company = Company.objects.create(**defaults)
-    return company
+    return defaults
 
 
 def create_user(**params):
@@ -104,29 +102,25 @@ class PrivateCompanyApiTests(TestCase):
 
     def test_retrieve_companies(self):
         """Test retrieving a list of Companies."""
-        create_company()
-        create_company()
-        create_company(
-            name_company='Tesla',
-            symbol='TSLA',
-        )
+        self.client.post(COMPANIES_URL, create_company())
+        self.client.post(COMPANIES_URL, create_company())
+        self.client.post(COMPANIES_URL, create_company(name_company='Tesla', symbol='TSLA'))
 
         res = self.client.get(COMPANIES_URL)
-
         companies = Company.objects.all().order_by('id')
         serializer = CompanySerializer(companies, many=True)
+
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
+        self.assertEqual(2, len(res.data))
 
     def test_get_company_detail(self):
         """Test get company detail."""
-        company = create_company()
-
-        url = detail_url(company.id)
+        company = self.client.post(COMPANIES_URL, create_company())
+        url = detail_url(company.data['id'])
         res = self.client.get(url)
 
-        serializer = CompanyDetailSerializer(company)
-        self.assertEqual(res.data, serializer.data)
+        self.assertEqual(res.data, company.data)
 
     def test_create_company(self):
         """Test creating a Company."""
@@ -180,19 +174,20 @@ class PrivateCompanyApiTests(TestCase):
 
     def test_partial_update_company(self):
         """Test partial update of a company."""
-        company = create_company()
-
+        company = self.client.post(COMPANIES_URL, create_company())
+        model_company = Company.objects.get(id=company.data['id'])
         payload = {'company_url': 'https://www.apple.com/win', }
-        url = detail_url(company.id)
+        url = detail_url(company.data['id'])
         res = self.client.patch(url, payload)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        company.refresh_from_db()
-        self.assertEqual(company.company_url, payload['company_url'])
+        model_company.refresh_from_db()
+        self.assertEqual(model_company.company_url, payload['company_url'])
 
     def test_full_update_company(self):
         """Test full update of company."""
-        company = create_company()
+        company = self.client.post(COMPANIES_URL, create_company())
+        model_company = Company.objects.get(id=company.data['id'])
 
         payload = {
             'name_company': 'Aple',
@@ -203,20 +198,20 @@ class PrivateCompanyApiTests(TestCase):
             'company_url': 'https://www.apple.co/',
             'description': 'The most valuable firm in the world.',
         }
-        url = detail_url(company.id)
+        url = detail_url(company.data['id'])
         res = self.client.put(url, payload)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        company.refresh_from_db()
+        model_company.refresh_from_db()
         for k, v in payload.items():
-            self.assertEqual(getattr(company, k), v)
+            self.assertEqual(getattr(model_company, k), v)
 
     def test_delete_company(self):
         """Test deleting a company successful."""
-        company = create_company()
-
-        url = detail_url(company.id)
+        company = self.client.post(COMPANIES_URL, create_company())
+        model_company = Company.objects.get(id=company.data['id'])
+        url = detail_url(company.data['id'])
         res = self.client.delete(url)
 
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(Company.objects.filter(id=company.id).exists())
+        self.assertFalse(Company.objects.filter(id=company.data['id']).exists())
