@@ -5,6 +5,7 @@ Test for Financial statements meta data APIs.
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
+from django.db import IntegrityError
 
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -144,18 +145,19 @@ def create_financial_statement_meta_data(**params):
     else :
         unique_hash = '2022-09-24AAPLFYCash Flow Statement Standarized'
 
-    statement_meta_data = StatementMetaData.objects.create(
-            unique_hash = hashlib.sha256(unique_hash.encode()).hexdigest(),
-            id_company = company,
-            id_statement_type = statement_type,
-            fiscal_year = '2022',
-            fiscal_period = 'FY',
-            filling_date = '2022-10-28',
-            start_date = '2022-09-24',
-            end_date = '2022-10-27',
-            url = 'https://www.sec.gov/Archives/edgar/data/320193/000032019322000108/0000320193-22-000108-index.htm',
-            urlfinal = 'https://www.sec.gov/Archives/edgar/data/320193/000032019322000108/aapl-20220924.htm',
-            unit = 'USD',)
+    statement_meta_data = {
+        'unique_hash' : hashlib.sha256(unique_hash.encode()).hexdigest(),
+        'id_company' : str(company.id),
+        'id_statement_type' : str(statement_type.id),
+        'fiscal_year' : '2022',
+        'fiscal_period' : 'FY',
+        'filling_date' : '2022-10-28',
+        'start_date' : '2022-09-24',
+        'end_date' : '2022-10-27',
+        'url' : 'https://www.sec.gov/Archives/edgar/data/320193/000032019322000108/0000320193-22-000108-index.htm',
+        'urlfinal' : 'https://www.sec.gov/Archives/edgar/data/320193/000032019322000108/aapl-20220924.htm',
+        'unit' : 'USD',
+    }
     return statement_meta_data
 
 
@@ -186,32 +188,34 @@ class PrivateStatementApiTests(TestCase):
 
     def test_retrieve_statements_meta_data(self):
         """Test for retrieving statements meta data."""
-        create_financial_statement_meta_data()
-        create_financial_statement_meta_data()
-        create_financial_statement_meta_data(
-            name_company='MICROSOFT',
+        self.client.post(STATEMENT_META_DATA_URL, create_financial_statement_meta_data(
+            name_company='Tesla',
+            symbol='TSLA',
+        ))
+        self.client.post(STATEMENT_META_DATA_URL, create_financial_statement_meta_data(
+            name_company='Microsoft',
             symbol='MSFT',
-        )
+        ))
+        self.client.post(STATEMENT_META_DATA_URL, create_financial_statement_meta_data())
 
         res = self.client.get(STATEMENT_META_DATA_URL)
-
         statement_meta_data = StatementMetaData.objects.all().order_by('id')
         serializer = StatementMetaDataSerializer(statement_meta_data, many=True)
+
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
+        self.assertEqual(3, len(res.data))
 
     def test_get_statements_meta_data_detail(self):
         """Test get Statement metadata detail."""
-        statement_meta_data = create_financial_statement_meta_data(
-            name_company='TESLA',
+        statement_meta_data = self.client.post(STATEMENT_META_DATA_URL, create_financial_statement_meta_data(
+            name_company='Tesla',
             symbol='TSLA',
-        )
-
-        url = detail_url(statement_meta_data.id)
+        ))
+        url = detail_url(statement_meta_data.data['id'])
         res = self.client.get(url)
 
-        serializer = StatementMetaDataSerializer(statement_meta_data)
-        self.assertEqual(res.data, serializer.data)
+        self.assertEqual(res.data, statement_meta_data.data)
 
     def test_create_statements_meta_data(self):
         """Test create Statement meta data."""
@@ -242,31 +246,32 @@ class PrivateStatementApiTests(TestCase):
 
     def test_partial_update(self):
         """Test partial update of a financial statement metadata"""
-        statement_meta_data = create_financial_statement_meta_data(
-            name_company='TESLA',
+        statement_meta_data = self.client.post(STATEMENT_META_DATA_URL, create_financial_statement_meta_data(
+            name_company='Tesla',
             symbol='TSLA',
-        )
+        ))
+        model_meta_data = StatementMetaData.objects.get(id=statement_meta_data.data['id'])
         payload = {
             'filling_date': '2022-11-28',
             'start_date': '2022-10-24',
         }
-        url = detail_url(statement_meta_data.id)
+        url = detail_url(statement_meta_data.data['id'])
         res = self.client.patch(url, payload)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        statement_meta_data.refresh_from_db()
-        self.assertEqual(str(statement_meta_data.filling_date), payload['filling_date'])
-        self.assertEqual(str(statement_meta_data.start_date), payload['start_date'])
+        model_meta_data.refresh_from_db()
+        self.assertEqual(str(model_meta_data.filling_date), payload['filling_date'])
+        self.assertEqual(str(model_meta_data.start_date), payload['start_date'])
 
     def test_delete_statement_meta_data(self):
         """Test for deleting financial statements metadata."""
-        statement_meta_data = create_financial_statement_meta_data(
-            name_company='NVIDIA',
-            symbol='NVDA',
-        )
+        statement_meta_data = self.client.post(STATEMENT_META_DATA_URL, create_financial_statement_meta_data(
+            name_company='Tesla',
+            symbol='TSLA',
+        ))
 
-        url = detail_url(statement_meta_data.id)
+        url = detail_url(statement_meta_data.data['id'])
         res = self.client.delete(url)
 
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(StatementMetaData.objects.filter(id=statement_meta_data.id).exists())
+        self.assertFalse(StatementMetaData.objects.filter(id=statement_meta_data.data['id']).exists())

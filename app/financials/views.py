@@ -88,6 +88,22 @@ class StatementMetaDataViewSet(viewsets.ModelViewSet):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
+    def get_serializer_class(self):
+        """Return the serializer class for request."""
+        if self.action == 'list':
+            return serializers.StatementMetaDataSerializer
+
+        return self.serializer_class
+
+    def perform_create(self, serializer):
+        """Create a new Financial statement meta data."""
+        try:
+            statement_meta_data = serializer.save()
+        except IntegrityError:
+            pass
+        else:
+            return statement_meta_data
+
 
 class FinancialValuesViewSet(viewsets.ModelViewSet):
     """Views for manage the  financial statement meta data APIs."""
@@ -95,3 +111,4 @@ class FinancialValuesViewSet(viewsets.ModelViewSet):
     queryset = FinancialValue.objects.all()
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
+

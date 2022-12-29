@@ -209,7 +209,6 @@ class PrivateCompanyApiTests(TestCase):
     def test_delete_company(self):
         """Test deleting a company successful."""
         company = self.client.post(COMPANIES_URL, create_company())
-        model_company = Company.objects.get(id=company.data['id'])
         url = detail_url(company.data['id'])
         res = self.client.delete(url)
 
