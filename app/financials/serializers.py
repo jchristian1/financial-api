@@ -8,10 +8,8 @@ from core.models import (
     Indicator,
     Statement,
     StatementMetaData,
-    FinancialValue
+    FinancialValue,
 )
-
-from django.db import IntegrityError
 
 
 class CompanySerializer(serializers.ModelSerializer):

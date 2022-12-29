@@ -24,6 +24,11 @@ import hashlib
 VALUES_URL = reverse('financials:financialvalue-list')
 
 
+def detail_url(financial_value_id):
+    """Create and return a financial statement metadata detail url."""
+    return reverse('financials:financialvalue-detail', args=[financial_value_id])
+
+
 def create_company(**params):
     """Create and return a sample company."""
     defaults = {
@@ -67,7 +72,6 @@ def create_company(**params):
                 'headquartered in Cupertino, California.',
     }
     defaults.update(params)
-
     company = Company.objects.create(**defaults)
     return company
 
@@ -142,8 +146,8 @@ def create_financial_statement_meta_data(**params):
     defaults.update(params)
     statement_meta_data = StatementMetaData.objects.create(
             unique_hash = hashlib.sha256(unique_hash.encode()).hexdigest(),
-            id_company = company,
-            id_statement_type = statement_type,
+            id_company = company.id,
+            id_statement_type = statement_type.id,
             fiscal_year = '2022',
             fiscal_period = 'FY',
             filling_date = '2022-10-28',
@@ -167,6 +171,7 @@ def create_indicator(**params):
 
     indicator = Indicator.objects.create(**defaults)
     return indicator
+
 
 def create_value(**params):
     """Creating new value."""
@@ -238,19 +243,17 @@ def create_value(**params):
 
     indicator = create_indicator()
 
-    value = FinancialValue.objects.create(
-        id_financial_statement_meta_data= statement_meta_data,
-        id_Financial_Indicator= indicator,
-        ammount= 10000000000,
-    )
-
+    value = {
+        'id_financial_statement_meta_data': statement_meta_data.id,
+        'id_Financial_Indicator': indicator.id,
+        'ammount': 10000000000,
+    }
     return value
 
 
 def create_user(**params):
     """Create and return a new user."""
     return get_user_model().objects.create_user(**params)
-
 
 
 class PublicStatementApiTests(TestCase):
@@ -273,10 +276,16 @@ class PrivateStatementApiTests(TestCase):
         self.user = create_user(email='test@example.com', password='testpass123')
         self.client.force_authenticate(self.user)
 
-    def test_retrieve_statements_meta_data(self):
+    def test_retrieve_financial_values(self):
         """Test for retrieving statements meta data."""
-        create_value()
-        create_value()
+        self.client.post(VALUES_URL, create_value(
+            name_company='Tesla',
+            symbol='TSLA',
+        ))
+        self.client.post(VALUES_URL, create_value(
+            name_company ='Microsoft',
+            symbol='MSFT',
+        ))
 
         res = self.client.get(VALUES_URL)
 
@@ -284,3 +293,80 @@ class PrivateStatementApiTests(TestCase):
         serializer = FinancialValueSerializer(values, many=True)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
+
+    def test_get_financial_value(self):
+        """Test for getting detail financial value."""
+        financial_value = self.client.post(VALUES_URL, create_value(
+            name_company ='Microsoft',
+            symbol='MSFT',
+        ))
+        url = detail_url(financial_value.data['id'])
+        res = self.client.get(url)
+
+        self.assertEqual(res.data, financial_value.data)
+
+    def test_create_financial_value(self):
+        """Test create Financial value."""
+        indicator = create_indicator()
+        statement = create_statement()
+
+        company = create_company(
+            name_company='NETFLIX',
+            symbol='NFLX',
+        )
+
+        unique_hash = '2022-09-24NFLXFYCash Flow Statement Standarized'
+        payload = {
+            'unique_hash': hashlib.sha256(unique_hash.encode()).hexdigest(),
+            'id_company': company.id,
+            'id_statement_type': statement.id,
+            'fiscal_year': '2022',
+            'fiscal_period': 'FY',
+            'filling_date': '2022-10-28',
+            'start_date': '2022-09-24',
+            'end_date': '2022-10-27',
+            'url': 'https://www.sec.gov/Archives/edgar/data/320193/000032019322000108/0000320193-22-000108-index.htm',
+            'urlfinal': 'https://www.sec.gov/Archives/edgar/data/320193/000032019322000108/aapl-20220924.htm',
+            'unit': 'USD',
+        }
+        statements_meta_data = self.client.post(reverse('financials:statementmetadata-list'), payload)
+
+        payload = {
+            'id_financial_statement_meta_data': statements_meta_data.data['id'],
+            'id_Financial_Indicator': indicator.id,
+            'ammount': 10000000000,
+        }
+        res = self.client.post(VALUES_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(res.data['ammount'], payload['ammount'])
+
+    def test_partial_update(self):
+        """Test partial update for the values."""
+        financial_value = self.client.post(VALUES_URL, create_value(
+            name_company ='Microsoft',
+            symbol='MSFT',
+        ))
+        model_values = FinancialValue.objects.get(id=financial_value.data['id'])
+        payload = {
+            'ammount': 120000,
+        }
+        url = detail_url(financial_value.data['id'])
+        res = self.client.patch(url, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        model_values.refresh_from_db()
+        self.assertEqual(model_values.ammount, payload['ammount'])
+
+    def test_delete_financial_value(self):
+        """Test for deleting financial values."""
+        financial_value = self.client.post(VALUES_URL, create_value(
+            name_company ='Microsoft',
+            symbol='MSFT',
+        ))
+
+        url = detail_url(financial_value.data['id'])
+        res = self.client.delete(url)
+
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(FinancialValue.objects.filter(id=financial_value.data['id']).exists())
